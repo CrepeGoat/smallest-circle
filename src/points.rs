@@ -1,5 +1,4 @@
 use std::fmt;
-use std::f64;
 use std::ops::*;
 
 
@@ -124,8 +123,18 @@ impl Vector {
 	pub fn cross(self, other: Self) -> f64 {
 		self.x*other.y - self.y*other.x	
 	}
-}
 
+	pub fn rotated(self, angle: f64) -> Vector {
+		Vector{
+			x: self.x*angle.cos() + -self.y*angle.sin(),
+			y: self.x*angle.sin() + self.y*angle.cos(),
+		}
+	}
+
+	pub fn rotated_quantage(self, quantage: f64) -> Vector {
+		self.rotated(quantage * 2.*std::f64::consts::PI)
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -204,5 +213,26 @@ mod tests {
 		let v1 = Vector{x: 1., y: 2.};
 		let v2 = Vector{x: -3., y: 5.};
 		assert_eq!(v1.cross(v2), 11.);
+	}
+
+	#[test]
+	fn v_rotated() {
+		use std::f64::consts::PI;
+		let v = Vector{x: 1., y: 2.};
+		assert_eq!(v.rotated(0.), Vector{x: 1., y: 2.});
+		assert_eq!(v.rotated(0.5*PI), Vector{x: -2., y: 1.});
+		assert_eq!(v.rotated(PI), Vector{x: -1., y: -2.});
+		assert_eq!(v.rotated(1.5*PI), Vector{x: 2., y: -1.});
+		assert_eq!(v.rotated(2.*PI), Vector{x: 1., y: 2.});
+	}
+
+	#[test]
+	fn v_rotated_quantage() {
+		let v = Vector{x: 1., y: 2.};
+		assert_eq!(v.rotated_quantage(0.), Vector{x: 1., y: 2.});
+		assert_eq!(v.rotated_quantage(0.25), Vector{x: -2., y: 1.});
+		assert_eq!(v.rotated_quantage(0.5), Vector{x: -1., y: -2.});
+		assert_eq!(v.rotated_quantage(0.75), Vector{x: 2., y: -1.});
+		assert_eq!(v.rotated_quantage(1.), Vector{x: 1., y: 2.});
 	}
 }
