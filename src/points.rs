@@ -112,6 +112,21 @@ impl Mul<f64> for Vector {
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Vector Operations
+//-----------------------------------------------------------------------------
+
+impl Vector {
+	pub fn dot(self, other: Self) -> f64 {
+		self.x*other.x + self.y*other.y
+	}
+
+	pub fn cross(self, other: Self) -> f64 {
+		self.x*other.y - self.y*other.x	
+	}
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #[cfg(test)]
@@ -176,4 +191,18 @@ mod tests {
 		let v = Vector{x: 1., y: 2.};
 		assert_eq!(v*2., Vector{x: 2., y: 4.});
     }
+
+	#[test]
+	fn v_dot_v() {
+		let v1 = Vector{x: 1., y: 2.};
+		let v2 = Vector{x: -3., y: 5.};
+		assert_eq!(v1.dot(v2), 7.);
+	}
+
+	#[test]
+	fn v_cross_v() {
+		let v1 = Vector{x: 1., y: 2.};
+		let v2 = Vector{x: -3., y: 5.};
+		assert_eq!(v1.cross(v2), 11.);
+	}
 }
