@@ -4,7 +4,7 @@ use std::vec::Vec;
 
 
 #[derive(Debug, PartialEq)]
-struct ConvexPolygon{}
+pub struct ConvexPolygon{}
 
 impl ConvexPolygon {
 	pub fn new() -> Self {
