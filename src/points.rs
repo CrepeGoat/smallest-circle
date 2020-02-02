@@ -1,7 +1,7 @@
 use std::fmt;
 
 
-#[derive(Debug, Default, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Point{pub x: f64, pub y: f64}
 
 impl fmt::Display for Point {
