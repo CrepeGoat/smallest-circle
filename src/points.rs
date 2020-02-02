@@ -5,9 +5,18 @@ use std::f64;
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Point{pub x: f64, pub y: f64}
 
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
+pub struct Vector{pub x: f64, pub y: f64}
+
 impl fmt::Display for Point {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(formatter, "({}, {})", self.x, self.y)
+    }
+}
+
+impl fmt::Display for Vector {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "<{}, {}>", self.x, self.y)
     }
 }
 
@@ -29,11 +38,16 @@ impl Point {
 
 #[cfg(test)]
 mod tests {
-	use super::Point;
+	use super::{Point, Vector};
 
     #[test]
     fn make_point() {
 		let _p = Point{x: 1.0, y: 2.0};
+    }
+
+    #[test]
+    fn make_vector() {
+		let _v = Vector{x: 1.0, y: 2.0};
     }
 
     #[test]
