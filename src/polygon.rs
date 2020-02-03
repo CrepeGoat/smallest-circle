@@ -4,27 +4,35 @@ use std::vec::Vec;
 
 
 #[derive(Debug, PartialEq)]
-pub struct ConvexPolygon{}
+pub struct ConvexPolygon{
+	vertices: Vec<Point>,
+}
 
 impl ConvexPolygon {
 	pub fn new() -> Self {
-		unimplemented!();
+		Self{vertices: Vec::new()}
 	}
 
-	pub fn length(&self) -> usize {
-		unimplemented!();
+	pub fn degree(&self) -> usize {
+		self.vertices.len()
 	}
 
 	pub fn vertex(&self, index: usize) -> Point {
-		unimplemented!();
+		self.vertices[index]
 	}
 
 	pub fn fwd_edge(&self, index: usize) -> (Point, Point) {
-		unimplemented!();
+		(
+			self.vertices[index],
+			self.vertices[(index+1) % self.vertices.len()]
+		)
 	}
 
 	pub fn rev_edge(&self, index: usize) -> (Point, Point) {
-		unimplemented!();
+		(
+			self.vertices[(index+self.vertices.len()-1) % self.vertices.len()],
+			self.vertices[index]
+		)
 	}
 
 	pub fn covers(&self, point: Point) -> bool {
@@ -63,7 +71,7 @@ mod tests {
 	#[test]
 	fn length() {
 		let cp = convex_polygon();
-		assert_eq!(cp.length(), 0_usize);  // fill w/ actual length
+		assert_eq!(cp.degree(), 0_usize);  // fill w/ actual length
 	}
 
 	#[test]
