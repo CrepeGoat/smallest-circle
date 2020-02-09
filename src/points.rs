@@ -124,6 +124,10 @@ impl Vector {
 		self.x*other.y - self.y*other.x	
 	}
 
+	pub fn normal(self) -> Vector {
+		Vector{x: -self.y, y: self.x}
+	}
+
 	pub fn rotated(self, angle: f64) -> Vector {
 		Vector{
 			x: self.x*angle.cos() + -self.y*angle.sin(),
@@ -213,6 +217,12 @@ mod tests {
 		let v1 = Vector{x: 1., y: 2.};
 		let v2 = Vector{x: -3., y: 5.};
 		assert_eq!(v1.cross(v2), 11.);
+	}
+
+	#[test]
+	fn v_normal() {
+		let v = Vector{x: 1., y: 2.};
+		assert_eq!(v.normal(), Vector{x: -2., y: 1.});
 	}
 
 	#[test]
