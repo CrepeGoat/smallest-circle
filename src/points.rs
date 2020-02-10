@@ -1,5 +1,6 @@
 use std::fmt;
 use std::f64;
+use std::ops::*;
 
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
@@ -34,6 +35,83 @@ impl Point {
 }
 
 
+
+//-----------------------------------------------------------------------------
+// Additions
+//-----------------------------------------------------------------------------
+
+// Point + Point
+// cannot add two points
+
+// Point + Vector
+impl Add<Vector> for Point {
+	type Output = Self;
+	
+	fn add(self, other: Vector) -> Self::Output {
+		Self{x: self.x + other.x, y: self.y + other.y}
+	}
+}
+
+// Vector + Point
+// cannot add a point to a vector (only vice-versa)
+
+// Vector + Vector
+impl Add<Vector> for Vector {
+	type Output = Self;
+	
+	fn add(self, other: Self) -> Self::Output {
+		Self{x: self.x + other.x, y: self.y + other.y}
+	}
+}
+
+
+//-----------------------------------------------------------------------------
+// Subtractions
+//-----------------------------------------------------------------------------
+
+// Point - Point
+impl Sub<Point> for Point {
+	type Output = Vector;
+	
+	fn sub(self, other: Self) -> Self::Output {
+		Vector{x: self.x - other.x, y: self.y - other.y}
+	}
+}
+
+// Point - Vector
+impl Sub<Vector> for Point {
+	type Output = Point;
+	
+	fn sub(self, other: Vector) -> Self::Output {
+		Point{x: self.x - other.x, y: self.y - other.y}
+	}
+}
+
+// Vector - Point
+// cannot subtract a point from a vector
+
+// Vector - Vector
+impl Sub<Vector> for Vector {
+	type Output = Self;
+	
+	fn sub(self, other: Self) -> Self::Output {
+		Self{x: self.x - other.x, y: self.y - other.y}
+	}
+}
+
+
+//-----------------------------------------------------------------------------
+// Multiplications
+//-----------------------------------------------------------------------------
+
+impl Mul<f64> for Vector {
+	type Output = Self;
+	
+	fn mul(self, other: f64) -> Self::Output {
+		Self{x: self.x * other, y: self.y * other}
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #[cfg(test)]
@@ -56,4 +134,46 @@ mod tests {
 		assert_eq!(p, Point::from_bits(p.to_bits()));
     }
 
+    //-------------------------------------------------------------------------
+
+    #[test]
+    fn p_add_v() {
+		let p = Point{x: 1., y: 2.};
+		let v = Vector{x: 3., y: 5.};
+		assert_eq!(p+v, Point{x: 4., y: 7.});
+    }
+
+    #[test]
+    fn v_add_v() {
+		let v1 = Vector{x: 1., y: 2.};
+		let v2 = Vector{x: 3., y: 5.};
+		assert_eq!(v1+v2, Vector{x: 4., y: 7.});
+    }
+
+    #[test]
+    fn p_sub_p() {
+		let p1 = Point{x: 1., y: 2.};
+		let p2 = Point{x: 3., y: 5.};
+		assert_eq!(p2-p1, Vector{x: 2., y: 3.});
+    }
+
+    #[test]
+    fn p_sub_v() {
+		let v = Vector{x: 1., y: 2.};
+		let p = Point{x: 3., y: 5.};
+		assert_eq!(p-v, Point{x: 2., y: 3.});
+    }
+
+    #[test]
+    fn v_sub_v() {
+		let v1 = Vector{x: 1., y: 2.};
+		let v2 = Vector{x: 3., y: 5.};
+		assert_eq!(v2-v1, Vector{x: 2., y: 3.});
+    }
+
+    #[test]
+    fn v_mul_s() {
+		let v = Vector{x: 1., y: 2.};
+		assert_eq!(v*2., Vector{x: 2., y: 4.});
+    }
 }
