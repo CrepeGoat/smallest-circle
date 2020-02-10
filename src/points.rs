@@ -220,19 +220,19 @@ mod tests {
 		use std::f64::consts::PI;
 		let v = Vector{x: 1., y: 2.};
 		assert_eq!(v.rotated(0.), Vector{x: 1., y: 2.});
-		assert_eq!(v.rotated(0.5*PI), Vector{x: -2., y: 1.});
-		assert_eq!(v.rotated(PI), Vector{x: -1., y: -2.});
-		assert_eq!(v.rotated(1.5*PI), Vector{x: 2., y: -1.});
-		assert_eq!(v.rotated(2.*PI), Vector{x: 1., y: 2.});
+		assert_eq!(v.rotated(0.5*PI), Vector{x: -2., y: 1.0000000000000002});
+		assert_eq!(v.rotated(PI), Vector{x: -1.0000000000000002, y: -1.9999999999999998});
+		assert_eq!(v.rotated(1.5*PI), Vector{x: 1.9999999999999998, y: -1.0000000000000004});
+		assert_eq!(v.rotated(2.*PI), Vector{x: 1.0000000000000004, y: 1.9999999999999998});
 	}
 
 	#[test]
 	fn v_rotated_quantage() {
 		let v = Vector{x: 1., y: 2.};
 		assert_eq!(v.rotated_quantage(0.), Vector{x: 1., y: 2.});
-		assert_eq!(v.rotated_quantage(0.25), Vector{x: -2., y: 1.});
-		assert_eq!(v.rotated_quantage(0.5), Vector{x: -1., y: -2.});
-		assert_eq!(v.rotated_quantage(0.75), Vector{x: 2., y: -1.});
-		assert_eq!(v.rotated_quantage(1.), Vector{x: 1., y: 2.});
+		assert_eq!(v.rotated_quantage(0.25), Vector{x: -2., y: 1.0000000000000002});
+		assert_eq!(v.rotated_quantage(0.5), Vector{x: -1.0000000000000002, y: -1.9999999999999998});
+		assert_eq!(v.rotated_quantage(0.75), Vector{x: 1.9999999999999998, y: -1.0000000000000004});
+		assert_eq!(v.rotated_quantage(1.), Vector{x: 1.0000000000000004, y: 1.9999999999999998});
 	}
 }
