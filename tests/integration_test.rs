@@ -2,7 +2,7 @@ use smallest_circle::smallest_cover;
 
 #[test]
 fn point_cloud_use() {
-	let mut point_cloud = smallest_cover::PointCloud::<u8>::new();
+	let mut point_cloud = smallest_cover::PointCloud::new();
 
 	point_cloud.extend(0u8..5u8);
 	assert!(point_cloud.cover_radius() == 0.);  // replace w/ calculated value

@@ -1,25 +1,23 @@
-use std::marker::PhantomData;
+use crate::points::Point;
 
 use std::iter::Iterator;
 
-pub struct PointCloud<POINT>{
-	dummy: PhantomData<POINT>
-}
+pub struct PointCloud{}
 
-impl<POINT> PointCloud<POINT> {
+impl PointCloud {
 	pub fn new() -> Self {
-		Self{dummy: PhantomData}
+		Self{}
 	}
 
-	pub fn extend<I: Iterator<Item=POINT>>(&mut self, iter: I) {
+	pub fn extend<I: Iterator<Item=Point>>(&mut self, iter: I) {
 		unimplemented!();
 	}
 
-	pub fn insert(&mut self, p: POINT) {
+	pub fn insert(&mut self, p: Point) {
 		unimplemented!();
 	}
 
-	pub fn remove(&mut self, p: POINT) {
+	pub fn remove(&mut self, p: Point) {
 		unimplemented!();
 	}
 
