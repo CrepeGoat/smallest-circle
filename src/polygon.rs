@@ -8,6 +8,15 @@ pub struct ConvexPolygon{
 	vertices: Vec<Point>,
 }
 
+
+#[derive(Debug, PartialEq)]
+enum EdgeRegion {
+	Interior,
+	Boundary,
+	Exterior,
+}
+
+
 impl ConvexPolygon {
 	pub fn new() -> Self {
 		Self{vertices: Vec::new()}
@@ -35,8 +44,31 @@ impl ConvexPolygon {
 		)
 	}
 
+	fn region(point: Point, edge: (Point, Point)) -> EdgeRegion {
+		use std::cmp::Ordering::*;
+		use EdgeRegion::*;
+
+		match (edge.1-edge.0)
+			.normal()
+			.dot(point-edge.0)
+			.partial_cmp(&0.).unwrap()
+		{
+			Less => Exterior,
+			Equal => Boundary,
+			Greater => Interior,
+		}
+	}
+
+	fn exterior_witness(&self, point: Point) -> Option<usize> {
+		(0..self.vertices.len())
+			.filter(|i| {
+				Self::region(point, self.fwd_edge(*i)) == EdgeRegion::Exterior
+			})
+			.next()
+	}
+
 	pub fn covers(&self, point: Point) -> bool {
-		unimplemented!();
+		self.exterior_witness(point).is_none()
 	}
 
 	pub fn find(&self, vertex: Point) -> Option<usize> {
