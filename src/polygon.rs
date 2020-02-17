@@ -72,15 +72,53 @@ impl ConvexPolygon {
 	}
 
 	pub fn find(&self, vertex: Point) -> Option<usize> {
-		unimplemented!();
+		(0..self.vertices.len())
+			.filter(|i| self.vertex(*i) == vertex)
+			.next()
 	}
 
-	pub fn insert(&mut self, vertex: Point) -> Vec<Point> {
-		unimplemented!();
+	pub fn insert(&mut self, new_vertex: Point) -> Vec<Point> {
+		if let Some(i) = self.exterior_witness(new_vertex) {
+			let n = self.vertices.len();
+
+			let v0_idx = (0..n)
+				.map(|j| (n+i-j)%n)
+				.filter(|j| {
+					Self::region(new_vertex, self.rev_edge(*j))
+					== EdgeRegion::Interior
+				})
+				.next().unwrap();
+			let v1_idx = (0..n)
+				.map(|j| (i+1+j)%n)
+				.filter(|j| {
+					Self::region(new_vertex, self.fwd_edge(*j))
+					== EdgeRegion::Interior
+				})
+				.next().unwrap();
+
+			assert!(v0_idx != v1_idx);
+
+			let mut removed_vertices = Vec::<Point>::new();
+			if v0_idx < v1_idx {
+				removed_vertices.extend(self.vertices.drain(v0_idx+1..v1_idx));
+				self.vertices.insert(v0_idx+1, new_vertex);
+			} else {
+				removed_vertices.extend(self.vertices.drain(v0_idx+1..));
+				removed_vertices.extend(self.vertices.drain(..v1_idx));
+				self.vertices.push(new_vertex);
+			}
+
+			removed_vertices
+		} else if self.degree() <= 1 && self.find(new_vertex).is_none() {
+			self.vertices.push(new_vertex);
+			vec!()
+		} else {
+			vec!(new_vertex)
+		}
 	}
 
 	pub fn remove(&mut self, index: usize) -> Point {
-		unimplemented!();
+		self.vertices.remove(index)
 	}
 }
 
@@ -97,6 +135,7 @@ mod tests {
 		cp.insert(Point{x: 2., y: 0.});
 		cp.insert(Point{x: -1., y: -1.});
 		cp.insert(Point{x: 1., y: -1.});
+		assert_eq!(cp.degree(), 4);
 
 		let start_index = cp.find(Point{x: 0., y: 1.}).unwrap();
 
