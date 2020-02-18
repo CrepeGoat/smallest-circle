@@ -55,6 +55,42 @@ impl MovingPointCloud {
 	}
 
 	pub fn cover_radius(&self) -> f64 {
-		unimplemented!();
+		fn push_pair(pair: mut (Point, Point)) {
+			for i in (0..2) {
+				if let Some(far_pair) = farthest_pairs[i] {
+					if (
+						(far_pair.1-far_pair.0).magnitude()
+						< (pair.1-pair.0).magnitude()
+					) {
+						farthest_pairs[i] = Some(pair);
+						pair = far_pair;
+					}
+				} else {
+					farthest_pairs[i] = Some(pair);
+					break;
+				}
+			}
+		}
+
+		let start_vertex = self.cover.some_vertex();
+		let mut vertex_0 = start_vertex;
+		let mut vertex_1 = start_vertex.fwd_vertex();
+
+		let mut farthest_pairs: [Option<(Point, Point)>; 2] = [None, None];
+
+		loop {
+			push_pair((vertex_0.position(), vertex_1.position()));
+
+			if vertex_0.fwd_edge().direction().cross(
+				vertex_1.fwd_edge().direction()
+			) > 0 {
+				vertex_1 = vertex_1.fwd_vertex();
+			} else {
+				vertex_0 = vertex_0.fwd_vertex();
+				if vertex_0 == start_vertex {
+					break;
+				}
+			}
+		}
 	}
 }
