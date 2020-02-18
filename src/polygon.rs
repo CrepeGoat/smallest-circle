@@ -1,4 +1,4 @@
-use crate::points::Point;
+use crate::points::{Point, Vector};
 
 use std::vec::Vec;
 
@@ -10,6 +10,9 @@ pub struct PolygonVertex<'a>{
 }
 
 #[derive(Debug, PartialEq)]
+pub struct PolygonEdge(Point, Point);
+
+#[derive(Debug, PartialEq)]
 pub struct ConvexPolygon{
 	vertices: Vec<Point>,
 }
@@ -19,6 +22,28 @@ enum EdgeRegion {
 	Interior,
 	Boundary,
 	Exterior,
+}
+
+
+impl PolygonEdge {
+	fn direction(&self) -> Vector {
+		self.1 - self.0
+	}
+
+	fn region(&self, point: Point) -> EdgeRegion {
+		use std::cmp::Ordering::*;
+		use EdgeRegion::*;
+
+		match self.direction()
+			.normal()
+			.dot(point-self.0)
+			.partial_cmp(&0.).unwrap()
+		{
+			Less => Exterior,
+			Equal => Boundary,
+			Greater => Interior,
+		}
+	}
 }
 
 
@@ -39,6 +64,20 @@ impl PolygonVertex<'_> {
 			index: (self.index+self.vertices.len()-1) % self.vertices.len(),
 			..*self
 		}
+	}
+
+	pub fn fwd_edge(&self) -> PolygonEdge {
+		PolygonEdge(
+			self.vertices[self.index],
+			self.vertices[(self.index+1) % self.vertices.len()]
+		)
+	}
+
+	pub fn rev_edge(&self) -> PolygonEdge {
+		PolygonEdge(
+			self.vertices[(self.index+self.vertices.len()-1) % self.vertices.len()],
+			self.vertices[self.index]
+		)
 	}
 }
 
