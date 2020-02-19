@@ -52,15 +52,16 @@ impl ConvexPolygon {
 		self.vertices.len()
 	}
 
-	pub fn vertex(&self, index: usize) -> Point {
-		self.vertices[index]
-	}
-
 	pub fn fwd_edge(&self, index: usize) -> (Point, Point) {
 		(
 			self.vertices[index],
 			self.vertices[(index+1) % self.vertices.len()]
 		)
+	fn vertex(&self, index: usize) -> PolygonVertex {
+		PolygonVertex {
+			vertices: &self.vertices,
+			index,
+		}
 	}
 
 	pub fn rev_edge(&self, index: usize) -> (Point, Point) {
@@ -83,6 +84,8 @@ impl ConvexPolygon {
 			Equal => Boundary,
 			Greater => Interior,
 		}
+	pub fn some_vertex(&self) -> PolygonVertex {
+		self.vertex(0_usize)
 	}
 
 	fn exterior_witness(&self, point: Point) -> Option<usize> {
@@ -97,27 +100,29 @@ impl ConvexPolygon {
 		self.exterior_witness(point).is_none()
 	}
 
-	pub fn find(&self, vertex: Point) -> Option<usize> {
-		(0..self.vertices.len())
-			.filter(|i| self.vertex(*i) == vertex)
-			.next()
+	pub fn find(&self, point: Point) -> Option<PolygonVertex> {
+		Some(self.vertex(
+			(0..self.vertices.len())
+			.filter(|i| self.vertices[*i] == point)
+			.next()?
+		))
 	}
 
-	pub fn insert(&mut self, new_vertex: Point) -> Vec<Point> {
-		if let Some(i) = self.exterior_witness(new_vertex) {
+	pub fn insert(&mut self, new_point: Point) -> Vec<Point> {
+		if let Some(vertex) = self.exterior_witness(new_point) {
 			let n = self.vertices.len();
 
 			let v0_idx = (0..n)
-				.map(|j| (n+i-j)%n)
+				.map(|j| (n+vertex.index-j)%n)
 				.filter(|j| {
-					Self::region(new_vertex, self.rev_edge(*j))
+					self.vertex(*j).rev_edge().region(new_point)
 					== EdgeRegion::Interior
 				})
 				.next().unwrap();
 			let v1_idx = (0..n)
-				.map(|j| (i+1+j)%n)
+				.map(|j| (vertex.index+1+j)%n)
 				.filter(|j| {
-					Self::region(new_vertex, self.fwd_edge(*j))
+					self.vertex(*j).fwd_edge().region(new_point)
 					== EdgeRegion::Interior
 				})
 				.next().unwrap();
@@ -127,19 +132,19 @@ impl ConvexPolygon {
 			let mut removed_vertices = Vec::<Point>::new();
 			if v0_idx < v1_idx {
 				removed_vertices.extend(self.vertices.drain(v0_idx+1..v1_idx));
-				self.vertices.insert(v0_idx+1, new_vertex);
+				self.vertices.insert(v0_idx+1, new_point);
 			} else {
 				removed_vertices.extend(self.vertices.drain(v0_idx+1..));
 				removed_vertices.extend(self.vertices.drain(..v1_idx));
-				self.vertices.push(new_vertex);
+				self.vertices.push(new_point);
 			}
 
 			removed_vertices
-		} else if self.degree() <= 1 && self.find(new_vertex).is_none() {
-			self.vertices.push(new_vertex);
+		} else if self.degree() <= 1 && self.find(new_point).is_none() {
+			self.vertices.push(new_point);
 			vec!()
 		} else {
-			vec!(new_vertex)
+			vec!(new_point)
 		}
 	}
 
