@@ -91,11 +91,6 @@ impl ConvexPolygon {
 		self.vertices.len()
 	}
 
-	pub fn fwd_edge(&self, index: usize) -> (Point, Point) {
-		(
-			self.vertices[index],
-			self.vertices[(index+1) % self.vertices.len()]
-		)
 	fn vertex(&self, index: usize) -> PolygonVertex {
 		PolygonVertex {
 			vertices: &self.vertices,
@@ -103,35 +98,14 @@ impl ConvexPolygon {
 		}
 	}
 
-	pub fn rev_edge(&self, index: usize) -> (Point, Point) {
-		(
-			self.vertices[(index+self.vertices.len()-1) % self.vertices.len()],
-			self.vertices[index]
-		)
-	}
-
-	fn region(point: Point, edge: (Point, Point)) -> EdgeRegion {
-		use std::cmp::Ordering::*;
-		use EdgeRegion::*;
-
-		match (edge.1-edge.0)
-			.normal()
-			.dot(point-edge.0)
-			.partial_cmp(&0.).unwrap()
-		{
-			Less => Exterior,
-			Equal => Boundary,
-			Greater => Interior,
-		}
 	pub fn some_vertex(&self) -> PolygonVertex {
 		self.vertex(0_usize)
 	}
 
-	fn exterior_witness(&self, point: Point) -> Option<usize> {
+	fn exterior_witness(&self, point: Point) -> Option<PolygonVertex> {
 		(0..self.vertices.len())
-			.filter(|i| {
-				Self::region(point, self.fwd_edge(*i)) == EdgeRegion::Exterior
-			})
+			.map(|i| self.vertex(i))
+			.filter(|v| v.fwd_edge().region(point) == EdgeRegion::Exterior)
 			.next()
 	}
 
