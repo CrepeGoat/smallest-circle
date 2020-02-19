@@ -79,6 +79,10 @@ impl PolygonVertex<'_> {
 			self.vertices[self.index]
 		)
 	}
+
+	pub fn to_id(self) -> usize {
+		self.index
+	}
 }
 
 
