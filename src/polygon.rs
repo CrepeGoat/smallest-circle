@@ -4,16 +4,42 @@ use std::vec::Vec;
 
 
 #[derive(Debug, PartialEq)]
+pub struct PolygonVertex<'a>{
+	vertices: &'a Vec<Point>,
+	index: usize,
+}
+
+#[derive(Debug, PartialEq)]
 pub struct ConvexPolygon{
 	vertices: Vec<Point>,
 }
-
 
 #[derive(Debug, PartialEq)]
 enum EdgeRegion {
 	Interior,
 	Boundary,
 	Exterior,
+}
+
+
+impl PolygonVertex<'_> {
+	pub fn position(&self) -> Point {
+		self.vertices[self.index]
+	}
+
+	pub fn fwd_vertex(&self) -> Self {
+		Self {
+			index: (self.index+1) % self.vertices.len(),
+			..*self
+		}
+	}
+	
+	pub fn rev_vertex(&self) -> Self {
+		Self {
+			index: (self.index+self.vertices.len()-1) % self.vertices.len(),
+			..*self
+		}
+	}
 }
 
 
