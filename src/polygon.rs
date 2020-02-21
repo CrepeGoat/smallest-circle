@@ -175,9 +175,9 @@ impl ConvexPolygon {
 
 #[cfg(test)]
 mod tests {
-	use super::{ConvexPolygon, Point};
+	use super::{ConvexPolygon, PolygonVertex, PolygonEdge, Point};
 
-	fn convex_polygon() -> (ConvexPolygon, usize) {
+	fn convex_polygon() -> ConvexPolygon {
 		let mut cp = ConvexPolygon::new();
 		cp.insert(Point{x: 0., y: 1.});
 		cp.insert(Point{x: 2., y: 0.});
@@ -185,9 +185,11 @@ mod tests {
 		cp.insert(Point{x: 1., y: -1.});
 		assert_eq!(cp.degree(), 4);
 
-		let start_index = cp.find(Point{x: 0., y: 1.}).unwrap();
+		cp
+	}
 
-		(cp, start_index)
+	fn start_vertex<'a>(cp: &'a ConvexPolygon) -> PolygonVertex<'a> {
+		cp.find(Point{x: 0., y: 1.}).unwrap()
 	}
 
 	fn ordered_vertices() -> Vec<Point> {
@@ -206,49 +208,55 @@ mod tests {
 
 	#[test]
 	fn length() {
-		let cp = convex_polygon().0;
+		let cp = convex_polygon();
 		assert_eq!(cp.degree(), 4_usize);  // fill w/ actual length
 	}
 
 	#[test]
 	fn vertex() {
-		let (cp, start_index) = convex_polygon();
+		let cp = convex_polygon();
+		let mut vertex = start_vertex(&cp);
 		let ordered_vertices = ordered_vertices();
 
-		for i in 0_usize..4_usize {
-			assert_eq!(cp.vertex((start_index+i) % 4), ordered_vertices[i]);
+		for i in 0..4 {
+			assert_eq!(vertex.position(), ordered_vertices[i]);
+			vertex = vertex.fwd_vertex();
 		}
 	}
 
 	#[test]
 	fn fwd_edge() {
-		let (cp, start_index) = convex_polygon();
+		let cp = convex_polygon();
+		let mut vertex = start_vertex(&cp);
 		let ordered_vertices = ordered_vertices();
 
-		for i in 0_usize..4_usize {
+		for i in 0..4 {
 			assert_eq!(
-				cp.fwd_edge((start_index+i) % 4),
-				(ordered_vertices[i], ordered_vertices[(i+1) % 4])
+				vertex.fwd_edge(),
+				PolygonEdge(ordered_vertices[i], ordered_vertices[(i+1) % 4])
 			);
+			vertex = vertex.fwd_vertex();
 		}
 	}
 
 	#[test]
 	fn rev_edge() {
-		let (cp, start_index) = convex_polygon();
+		let cp = convex_polygon();
+		let mut vertex = start_vertex(&cp);
 		let ordered_vertices = ordered_vertices();
 
 		for i in 0_usize..4_usize {
+			vertex = vertex.fwd_vertex();
 			assert_eq!(
-				cp.rev_edge((start_index+i+1) % 4),
-				(ordered_vertices[i], ordered_vertices[(i+1) % 4])
+				vertex.rev_edge(),
+				PolygonEdge(ordered_vertices[i], ordered_vertices[(i+1) % 4])
 			);
 		}
 	}
 
 	#[test]
 	fn covers() {
-		let cp = convex_polygon().0;
+		let cp = convex_polygon();
 
 		assert!(cp.covers(Point{x: 1., y: 0.}));
 		assert!(cp.covers(Point{x: 1., y: 0.5}));
@@ -257,18 +265,24 @@ mod tests {
 
 	#[test]
 	fn find() {
-		let (cp, start_index) = convex_polygon();
+		let cp = convex_polygon();
+		let mut vertex = start_vertex(&cp);
 		let ordered_vertices = ordered_vertices();
 
 		for i in 0_usize..4_usize {
-			assert_eq!(cp.find(ordered_vertices[i]), Some((start_index+i) % 4));
+			let next_vertex = vertex.fwd_vertex();
+			assert_eq!(
+				cp.find(ordered_vertices[i]),
+				Some(vertex),
+			);
+			vertex = next_vertex;
 		}
 		assert_eq!(cp.find(Point{x: 0., y: 0.}), None);
 	}
 
 	#[test]
 	fn insert() {
-		let mut cp = convex_polygon().0;
+		let mut cp = convex_polygon();
 		// Add interior point
 		{
 			let point = Point{x: 0., y: 0.};
@@ -306,8 +320,11 @@ mod tests {
 
 	#[test]
 	fn remove() {
-		let (mut cp, start_index) = convex_polygon();
+		let mut cp = convex_polygon();
+		let vertex = start_vertex(&cp);
 		let ordered_vertices = ordered_vertices();
-		assert_eq!(cp.remove(start_index), ordered_vertices[0]);
+
+		let vertex_id = vertex.to_id();
+		assert_eq!(cp.remove(vertex_id), ordered_vertices[0]);
 	}
 }
