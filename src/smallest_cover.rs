@@ -34,15 +34,14 @@ impl MovingPointCloud {
 
 	pub fn pop(&mut self) {
 		if let Some(p) = self.point_log.pop_front() {
-			if self.interior.remove::<(u64, u64)>(&p.to_bits()) {
-				return;
-			}
+			if self.interior.remove::<(u64, u64)>(&p.to_bits()) {}
 
-			if let Some(i) = self.cover.find(p) {
+			else if let Some(vertex) = self.cover.find(p) {
 				let mut lost_area = ConvexPolygon::new();
-				lost_area.insert(self.cover.rev_edge(i).0);
-				lost_area.insert(self.cover.fwd_edge(i).1);
-				lost_area.insert(self.cover.remove(i));
+				lost_area.insert(vertex.rev_vertex().position());
+				lost_area.insert(vertex.fwd_vertex().position());
+				let vertex_id = vertex.to_id();
+				lost_area.insert(self.cover.remove(vertex_id));
 
 				for p in self.interior.iter()
 					.map(|b| Point::from_bits(*b))
@@ -50,6 +49,10 @@ impl MovingPointCloud {
 				{
 					self.cover.insert(p);
 				}
+			}
+
+			else {
+				unreachable!();
 			}
 		}
 	}
