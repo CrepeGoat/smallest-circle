@@ -106,6 +106,13 @@ impl ConvexPolygon {
 		self.vertex(0_usize)
 	}
 
+	pub fn iter(&self)
+		-> impl std::iter::ExactSizeIterator<Item=PolygonVertex>
+	{
+		(0..self.vertices.len())
+			.map(|i| self.vertex(i))
+	}
+
 	fn exterior_witness(&self, point: Point) -> Option<PolygonVertex> {
 		(0..self.vertices.len())
 			.map(|i| self.vertex(i))
@@ -221,6 +228,16 @@ mod tests {
 		for i in 0..4 {
 			assert_eq!(vertex.position(), ordered_vertices[i]);
 			vertex = vertex.fwd_vertex();
+		}
+	}
+
+	#[test]
+	fn iter() {
+		let cp = convex_polygon();
+		let ordered_vertices = ordered_vertices();
+
+		for (vertex, pos) in cp.iter().zip(ordered_vertices.iter()) {
+			assert_eq!(vertex.position(), pos);
 		}
 	}
 
