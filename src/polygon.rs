@@ -133,6 +133,10 @@ impl ConvexPolygon {
 		))
 	}
 
+	pub fn find_best(&self, objective: Vector) -> PolygonVertex {
+		unimplemented!();
+	}
+
 	pub fn insert(&mut self, new_point: Point) -> Vec<Point> {
 		if let Some(vertex) = self.exterior_witness(new_point) {
 			let n = self.vertices.len();

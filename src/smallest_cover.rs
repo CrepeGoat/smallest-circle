@@ -1,4 +1,4 @@
-use crate::points::Point;
+use crate::points::{Point, Vector};
 use crate::polygon::ConvexPolygon;
 
 use std::iter::Iterator;
@@ -58,6 +58,33 @@ impl MovingPointCloud {
 	}
 
 	pub fn cover_radius(&self) -> f64 {
+		if self.cover.degree() <= 1 {
+			return 0.
+		}
+
+		// Calculate square center
+		let center = {
+			let x_bounds = (
+				self.cover.find_best(Vector{x: -1., y: 0.}).position().x,
+				self.cover.find_best(Vector{x: 1., y: 0.}).position().x,
+			);
+			let y_bounds = (
+				self.cover.find_best(Vector{x: 0., y: -1.}).position().y,
+				self.cover.find_best(Vector{x: 0., y: 1.}).position().y,
+			);
+
+			Point{
+				x: (x_bounds.0+x_bounds.1) / 2.,
+				y: (y_bounds.0+y_bounds.1) / 2.,
+			}
+		};
+
+		let circumfrence_point1 = self.cover.iter()
+			.max_by_key(|v| (v.position() - center).sq_mag());
+		let circumfrence_point2 = self.cover.iter()
+			.filter(|v| v != circumfrence_point1)
+			.max_by_key(|v| (v.position() - center).sq_mag());
+
 		unimplemented!();
 	}
 }
