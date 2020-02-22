@@ -120,6 +120,10 @@ impl Vector {
 		self.x*other.x + self.y*other.y
 	}
 
+	pub fn sq_mag(&self) -> f64 {
+		self.dot(*self)
+	}
+
 	pub fn cross(self, other: Self) -> f64 {
 		self.x*other.y - self.y*other.x	
 	}
@@ -210,6 +214,12 @@ mod tests {
 		let v1 = Vector{x: 1., y: 2.};
 		let v2 = Vector{x: -3., y: 5.};
 		assert_eq!(v1.dot(v2), 7.);
+	}
+
+	#[test]
+	fn v_sq_mag() {
+		let v = Vector{x: 1., y: 2.};
+		assert_eq!(v.sq_mag(), 5.);
 	}
 
 	#[test]
