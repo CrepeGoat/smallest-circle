@@ -106,11 +106,12 @@ impl ConvexPolygon {
 		self.vertex(0_usize)
 	}
 
-	pub fn iter(&self)
-		-> impl std::iter::ExactSizeIterator<Item=PolygonVertex>
-	{
+	pub fn iter<'a, F>(&'a self) -> std::iter::Map<
+		std::ops::Range<usize>,
+		dyn Fn(usize) -> PolygonVertex<'a>
+	> {
 		(0..self.vertices.len())
-			.map(|i| self.vertex(i))
+			.map(self.vertex)
 	}
 
 	fn exterior_witness(&self, point: Point) -> Option<PolygonVertex> {
