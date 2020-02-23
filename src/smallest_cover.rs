@@ -1,5 +1,6 @@
 use crate::points::{Point, Vector};
 use crate::polygon::ConvexPolygon;
+use crate::circle::ClosedCircle;
 
 use std::iter::Iterator;
 use std::collections::HashSet;
@@ -57,10 +58,18 @@ impl MovingPointCloud {
 		}
 	}
 
-	pub fn cover_radius(&self) -> f64 {
-		if self.cover.degree() <= 1 {
-			return 0.
-		}
+	pub fn cover_circle(&self) -> ClosedCircle {
+		match self.cover.degree() {
+			0 => return ClosedCircle {
+				center: Point{x: std::f64::NAN, y: std::f64::NAN},
+				sq_radius: 0.
+			},
+			1 => return ClosedCircle {
+				center: self.cover.some_vertex().position(),
+				sq_radius: 0.
+			},
+			_ => {}
+		};
 
 		// Calculate square center
 		let center = {
@@ -107,9 +116,25 @@ impl MovingPointCloud {
 
 		let circ_pos1 = find_farthest_pos(HashSet::<(u64, u64)>::new()).unwrap();
 		let circ_pos2 = find_farthest_pos(
-			vec![circ_pos1].into_iter().map(|p| p.to_bits()).collect()
+			vec![circ_pos1]
+			.into_iter().map(|p| p.to_bits()).collect()
 		).unwrap();
+		let circ_2pt = ClosedCircle::from_two_points(circ_pos1, circ_pos2);
 
-		unimplemented!();
+		let circ_pos3 = find_farthest_pos(
+			vec![circ_pos1, circ_pos2]
+			.into_iter().map(|p| p.to_bits()).collect()
+		);
+
+		match circ_pos3 {
+			Some(p3) => {
+				if !circ_2pt.covers(p3) {
+					ClosedCircle::from_three_points(circ_pos1, circ_pos2, p3)
+				} else {
+					circ_2pt
+				}
+			},
+			None => circ_2pt,
+		}
 	}
 }
