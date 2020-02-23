@@ -126,7 +126,13 @@ impl ConvexPolygon {
 	}
 
 	pub fn find_best(&self, objective: Vector) -> PolygonVertex {
-		unimplemented!();
+		(0..self.vertices.len())
+			.map(|i| self.vertex(i))
+			.filter(|v|
+				objective.dot(v.fwd_edge().direction()) <= 0.
+				&& objective.dot(v.rev_edge().direction()) >= 0.
+			)
+			.next().unwrap()
 	}
 
 	pub fn insert(&mut self, new_point: Point) -> Vec<Point> {
