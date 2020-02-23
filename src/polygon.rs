@@ -125,6 +125,10 @@ impl ConvexPolygon {
 		))
 	}
 
+	pub fn find_best(&self, objective: Vector) -> PolygonVertex {
+		unimplemented!();
+	}
+
 	pub fn insert(&mut self, new_point: Point) -> Vec<Point> {
 		if let Some(vertex) = self.exterior_witness(new_point) {
 			let n = self.vertices.len();
@@ -175,7 +179,7 @@ impl ConvexPolygon {
 
 #[cfg(test)]
 mod tests {
-	use super::{ConvexPolygon, PolygonVertex, PolygonEdge, Point};
+	use super::{ConvexPolygon, PolygonVertex, PolygonEdge, Point, Vector};
 
 	fn convex_polygon() -> ConvexPolygon {
 		let mut cp = ConvexPolygon::new();
@@ -278,6 +282,23 @@ mod tests {
 			vertex = next_vertex;
 		}
 		assert_eq!(cp.find(Point{x: 0., y: 0.}), None);
+	}
+
+	#[test]
+	fn find_best() {
+		let cp = convex_polygon();
+		assert_eq!(
+			cp.find_best(Vector{x: 2., y: 0.}).position(),
+			Point{x: 2., y: 0.},
+		);
+		assert_eq!(
+			cp.find_best(Vector{x: 1., y: 0.}).position(),
+			Point{x: 2., y: 0.},
+		);
+		assert_eq!(
+			cp.find_best(Vector{x: 3., y: 1.}).position(),
+			Point{x: 2., y: 0.},
+		);
 	}
 
 	#[test]
