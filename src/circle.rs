@@ -17,7 +17,29 @@ impl ClosedCircle {
 	}
 
 	pub fn from_three_points(p1: Point, p2: Point, p3: Point) -> Self {
-		unimplemented!()
+		// see http://ambrsoft.com/TrigoCalc/Circle3D.htm
+		let origin = Point::default();
+		let denominator = 2. * (
+			p1.x * (p2.y-p3.y)
+			- p1.y * (p2.x-p3.x)
+			+ p2.x*p3.y
+			- p2.y*p3.x
+		);
+		let center = Point{
+			x: (
+				(p1-origin).sq_mag() * (p2.y-p3.y)
+				+ (p2-origin).sq_mag() * (p3.y-p1.y)
+				+ (p3-origin).sq_mag() * (p1.y-p2.y)
+			) / denominator,
+			y: (
+				(p1-origin).sq_mag() * (p3.x-p2.x)
+				+ (p2-origin).sq_mag() * (p1.x-p3.x)
+				+ (p3-origin).sq_mag() * (p2.x-p1.x)
+			) / denominator,
+		};
+		
+		Self {center, sq_radius: (p1-center).sq_mag()}
+
 	}
 
 	pub fn covers(&self, point: Point) -> bool {
