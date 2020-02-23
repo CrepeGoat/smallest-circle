@@ -28,3 +28,75 @@ impl ClosedCircle {
 		f64::sqrt(self.sq_radius)
 	}
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+#[cfg(test)]
+mod tests {
+	use super::{ClosedCircle, Point};
+
+	#[test]
+	fn from_two_points() {
+		let p1 = Point{x: 4., y: -1.};
+		let p2 = Point{x: 0., y: -1.};
+
+		assert_eq!(
+			ClosedCircle::from_two_points(p1, p2),
+			ClosedCircle{
+				center: Point{x: 2., y: -1.},
+				sq_radius: 4.
+			}
+		);
+
+		// Permutation of points shouldn't change result
+		assert_eq!(
+			ClosedCircle::from_two_points(p1, p2),
+			ClosedCircle::from_two_points(p2, p1),
+		);
+	}
+
+	#[test]
+	fn from_three_points() {
+		let p1 = Point{x: 4., y: -1.};
+		let p2 = Point{x: 0., y: -1.};
+		let p3 = Point{x: 2., y: 1.};
+
+		assert_eq!(
+			ClosedCircle::from_three_points(p1, p2, p3),
+			ClosedCircle{
+				center: Point{x: 2., y: -1.},
+				sq_radius: 4.
+			}
+		);
+
+		// Permutation of points shouldn't change result
+		assert_eq!(
+			ClosedCircle::from_three_points(p1, p2, p3),
+			ClosedCircle::from_three_points(p3, p2, p1),
+		);
+	}
+
+	#[test]
+	fn covers() {
+		let circle = ClosedCircle{
+			center: Point{x: 2., y: -1.},
+			sq_radius: 4.,
+		};
+
+		assert!(circle.covers(Point{x: 2., y: -1.}));
+		assert!(circle.covers(Point{x: 1., y: 0.}));
+		assert!(circle.covers(Point{x: 0., y: -1.}));
+		assert!(!circle.covers(Point{x: 0., y: 0.}));
+	}
+
+	#[test]
+	fn radius() {
+		let circle = ClosedCircle{
+			center: Point{x: 2., y: -1.},
+			sq_radius: 4.,
+		};
+
+		assert_eq!(circle.radius(), 2.);
+	}
+}
