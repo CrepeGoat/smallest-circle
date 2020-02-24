@@ -23,7 +23,9 @@ impl MovingPointCloud {
 	}
 
 	pub fn extend<I: Iterator<Item=Point>>(&mut self, iter: I) {
-		unimplemented!();
+		for p in iter {
+			self.push(p);
+		}
 	}
 
 	pub fn push(&mut self, p: Point) {
