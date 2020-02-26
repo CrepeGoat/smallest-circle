@@ -51,11 +51,22 @@ impl MovingPointCloud {
 				let vertex_id = vertex.to_id();
 				lost_area.insert(self.cover.remove(vertex_id));
 
+				let mut move_to_cover = Vec::<Point>::new();
+
 				for p in self.interior.iter()
 					.map(|b| Point::from_bits(*b))
 					.filter(|p| lost_area.covers(*p))
 				{
-					self.cover.insert(p);
+					let move_to_interior = self.cover.insert(p);
+					if move_to_interior.len() == 0 {
+						move_to_cover.push(p);
+					} else {
+						assert_eq!(move_to_interior.len(), 1);
+						assert_eq!(move_to_interior[0], p);
+					}
+				}
+				for p in move_to_cover.into_iter() {
+					self.interior.remove(&p.to_bits());
 				}
 			}
 
