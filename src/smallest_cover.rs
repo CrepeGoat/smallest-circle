@@ -22,6 +22,11 @@ impl MovingPointCloud {
 		}
 	}
 
+	pub fn len(&self) -> usize {
+		assert_eq!(self.point_log.len(), self.cover.degree() + self.interior.len());
+		self.point_log.len()
+	}
+
 	pub fn extend<I: Iterator<Item=Point>>(&mut self, iter: I) {
 		for p in iter {
 			self.push(p);

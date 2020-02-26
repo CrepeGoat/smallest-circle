@@ -19,6 +19,7 @@ fn point_cloud_use() {
 		).into_iter());
 	};
 	assert_eq!(point_cloud.cover_circle().radius(), 1.);
+	assert_eq!(point_cloud.len(), 3);
 
 	// Add interior points
 	{
@@ -32,22 +33,29 @@ fn point_cloud_use() {
 		point_cloud.push(Point{x: r*(theta0+3.*dth).cos(), y: r*(theta0+3.*dth).sin()});
 	};
 	assert_eq!(point_cloud.cover_circle().radius(), 1.);
+	assert_eq!(point_cloud.len(), 7);
 
 	// Remove original polygon vertices
 	point_cloud.pop();
 	point_cloud.pop();
 	point_cloud.pop();
 	assert_eq!(point_cloud.cover_circle().radius(), 0.5);
+	assert_eq!(point_cloud.len(), 4);
 
 
 	// Add new polygon vertices, w/o changing radius
 	point_cloud.push(Point{x: 0.3, y: 0.3});
 	assert_eq!(point_cloud.cover_circle().radius(), 0.5);
+	assert_eq!(point_cloud.len(), 5);
 
 	// Remove all but one point
 	point_cloud.pop();
 	point_cloud.pop();
 	point_cloud.pop();
 	point_cloud.pop();
+	println!("{:?}", point_cloud.len());
+	//println!("{}", point_cloud.cover_circle());
+	//println!("{}", point_cloud.cover_circle().radius());
 	assert_eq!(point_cloud.cover_circle().radius(), 0.);
+	assert_eq!(point_cloud.len(), 1);
 }
