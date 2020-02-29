@@ -142,6 +142,10 @@ impl Vector {
 	pub fn rotated_quantage(self, quantage: f64) -> Vector {
 		self.rotated(quantage * 2.*std::f64::consts::PI)
 	}
+
+	pub fn heading(&self) -> f64 {
+		self.y.atan2(self.x)
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -254,5 +258,14 @@ mod tests {
 		assert_eq!(v.rotated_quantage(0.5), Vector{x: -1.0000000000000002, y: -1.9999999999999998});
 		assert_eq!(v.rotated_quantage(0.75), Vector{x: 1.9999999999999998, y: -1.0000000000000004});
 		assert_eq!(v.rotated_quantage(1.), Vector{x: 1.0000000000000004, y: 1.9999999999999998});
+	}
+
+	#[test]
+	fn v_heading() {
+		use std::f64::consts::PI;
+		assert_eq!(Vector{x: 2., y: 2.}.heading(), PI/4.);
+		assert_eq!(Vector{x: -3., y: 3.}.heading(), (3.*PI)/4.);
+		assert_eq!(Vector{x: -1., y: -1.}.heading(), (-3.*PI)/4.);
+		assert_eq!(Vector{x: 1., y: -1.}.heading(), -PI/4.);
 	}
 }
