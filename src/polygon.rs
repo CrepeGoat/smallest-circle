@@ -10,7 +10,10 @@ pub struct PolygonVertex<'a>{
 }
 
 #[derive(Debug, PartialEq)]
-pub struct PolygonEdge(Point, Point);
+pub struct PolygonEdge<'a>{
+	vertices: &'a Vec<Point>,
+	start_index: usize,
+}
 
 #[derive(Debug, PartialEq)]
 pub struct ConvexPolygon{
@@ -26,9 +29,23 @@ enum EdgeRegion {
 }
 
 
-impl PolygonEdge {
+impl PolygonEdge<'_> {
+	pub fn start_vertex(&self) -> PolygonVertex {
+		PolygonVertex {
+			vertices: self.vertices,
+			index: self.start_index,
+		}
+	}
+
+	pub fn stop_vertex(&self) -> PolygonVertex {
+		PolygonVertex {
+			vertices: self.vertices,
+			index: (self.start_index+1) % self.vertices.len(),
+		}
+	}
+
 	fn direction(&self) -> Vector {
-		self.1 - self.0
+		self.stop_vertex().position() - self.start_vertex().position()
 	}
 
 	fn region(&self, point: Point) -> EdgeRegion {
@@ -37,7 +54,7 @@ impl PolygonEdge {
 
 		match self.direction()
 			.normal()
-			.dot(point-self.0)
+			.dot(point-self.start_vertex().position())
 			.partial_cmp(&0.).unwrap()
 		{
 			Less => Exterior,
@@ -68,17 +85,17 @@ impl PolygonVertex<'_> {
 	}
 
 	pub fn fwd_edge(&self) -> PolygonEdge {
-		PolygonEdge(
-			self.vertices[self.index],
-			self.vertices[(self.index+1) % self.vertices.len()]
-		)
+		PolygonEdge{
+			vertices: self.vertices,
+			start_index: self.index,
+		}
 	}
 
 	pub fn rev_edge(&self) -> PolygonEdge {
-		PolygonEdge(
-			self.vertices[(self.index+self.vertices.len()-1) % self.vertices.len()],
-			self.vertices[self.index]
-		)
+		PolygonEdge{
+			vertices: self.vertices,
+			start_index: (self.index+self.vertices.len()-1) % self.vertices.len(),
+		}
 	}
 
 	pub fn to_id(self) -> usize {
@@ -193,7 +210,7 @@ impl ConvexPolygon {
 
 #[cfg(test)]
 mod tests {
-	use super::{ConvexPolygon, PolygonVertex, PolygonEdge, Point, Vector};
+	use super::{ConvexPolygon, PolygonVertex, Point, Vector};
 
 	fn convex_polygon() -> ConvexPolygon {
 		let mut cp = ConvexPolygon::new();
@@ -250,8 +267,12 @@ mod tests {
 
 		for i in 0..4 {
 			assert_eq!(
-				vertex.fwd_edge(),
-				PolygonEdge(ordered_vertices[i], ordered_vertices[(i+1) % 4])
+				vertex.fwd_edge().start_vertex().position(),
+				ordered_vertices[i],
+			);
+			assert_eq!(
+				vertex.fwd_edge().stop_vertex().position(),
+				ordered_vertices[(i+1) % 4],
 			);
 			vertex = vertex.fwd_vertex();
 		}
@@ -266,8 +287,12 @@ mod tests {
 		for i in 0_usize..4_usize {
 			vertex = vertex.fwd_vertex();
 			assert_eq!(
-				vertex.rev_edge(),
-				PolygonEdge(ordered_vertices[i], ordered_vertices[(i+1) % 4])
+				vertex.rev_edge().start_vertex().position(),
+				ordered_vertices[i],
+			);
+			assert_eq!(
+				vertex.rev_edge().stop_vertex().position(),
+				ordered_vertices[(i+1) % 4],
 			);
 		}
 	}
