@@ -15,6 +15,7 @@ pub struct PolygonEdge(Point, Point);
 #[derive(Debug, PartialEq)]
 pub struct ConvexPolygon{
 	vertices: Vec<Point>,
+	center: Point,
 }
 
 #[derive(Debug, PartialEq)]
@@ -88,7 +89,10 @@ impl PolygonVertex<'_> {
 
 impl ConvexPolygon {
 	pub fn new() -> Self {
-		Self{vertices: Vec::new()}
+		Self{
+			vertices: Vec::new(),
+			center: Point::default(),
+		}
 	}
 
 	pub fn degree(&self) -> usize {
@@ -100,6 +104,10 @@ impl ConvexPolygon {
 			vertices: &self.vertices,
 			index,
 		}
+	}
+
+	fn angle(&self, point: Point) -> f64 {
+		(point-self.center).heading()
 	}
 
 	pub fn some_vertex(&self) -> PolygonVertex {
