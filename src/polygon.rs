@@ -127,37 +127,45 @@ impl ConvexPolygon {
 		(point-self.center).heading()
 	}
 
+	fn search_vertices(&self, point_angle: &f64) -> Result<PolygonVertex, PolygonEdge> {
+		match self.vertices.as_slice().binary_search_by(
+			|vertex| self.angle(*vertex).partial_cmp(point_angle).unwrap()
+		) {
+			Ok(i) => Ok(self.vertex(i)),
+			Err(i) => Err(self.vertex(i % self.vertices.len()).rev_edge()),
+		}
+	}
+
+	fn search_edges(&self, point_angle: &f64) -> PolygonEdge {
+		match self.search_vertices(point_angle) {
+			Ok(v) => v.fwd_edge(),
+			Err(e) => e
+		}
+	}
+
 	pub fn some_vertex(&self) -> PolygonVertex {
 		self.vertex(0_usize)
 	}
 
-	fn exterior_witness(&self, point: Point) -> Option<PolygonVertex> {
-		(0..self.vertices.len())
-			.map(|i| self.vertex(i))
-			.filter(|v| v.fwd_edge().region(point) == EdgeRegion::Exterior)
-			.next()
-	}
-
 	pub fn covers(&self, point: Point) -> bool {
-		self.exterior_witness(point).is_none()
+		self.search_edges(&self.angle(point)).region(point) != EdgeRegion::Exterior
 	}
 
 	pub fn find(&self, point: Point) -> Option<PolygonVertex> {
-		Some(self.vertex(
-			(0..self.vertices.len())
-			.filter(|i| self.vertices[*i] == point)
-			.next()?
-		))
+		self.search_vertices(&self.angle(point)).ok()
 	}
 
 	pub fn find_best(&self, objective: Vector) -> PolygonVertex {
-		(0..self.vertices.len())
-			.map(|i| self.vertex(i))
-			.filter(|v|
-				objective.dot(v.fwd_edge().direction()) <= 0.
-				&& objective.dot(v.rev_edge().direction()) >= 0.
-			)
-			.next().unwrap()
+		let edge = match self.search_vertices(&objective.heading()) {
+			Ok(v) => return v,
+			Err(e) => e,
+		};
+
+		if edge.direction().dot(objective) <= 0. {
+			edge.start_vertex()
+		} else {
+			edge.stop_vertex()
+		}
 	}
 
 	pub fn insert(&mut self, new_point: Point) -> Vec<Point> {
